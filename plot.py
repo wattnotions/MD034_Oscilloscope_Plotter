@@ -1,5 +1,11 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import inquirer
+
+def list_csv_files(directory):
+    # List all files in the directory and filter for CSV files
+    return [file for file in os.listdir(directory) if file.endswith('.csv')]
 
 def load_and_plot_data(file_path):
     # Load data from the file, skipping the initial non-data rows
@@ -18,8 +24,29 @@ def load_and_plot_data(file_path):
     plt.legend()
     plt.show()
 
-# Path to your CSV file
-file_path = '3.8_non_wp_open.csv'
+def main():
+    # Get the current directory of the script
+    current_directory = os.getcwd()
 
-# Call the function with the path to your file
-load_and_plot_data(file_path)
+    # List CSV files in the current directory
+    csv_files = list_csv_files(current_directory)
+
+    # If no CSV files are found, print a message and exit
+    if not csv_files:
+        print("No CSV files found in the directory.")
+        return
+
+    # Use inquirer to let the user select a CSV file
+    questions = [
+        inquirer.List('file',
+                      message="Select which CSV file to plot",
+                      choices=csv_files,
+                      ),
+    ]
+    answers = inquirer.prompt(questions)
+
+    # Load and plot data from the selected file
+    load_and_plot_data(os.path.join(current_directory, answers['file']))
+
+if __name__ == "__main__":
+    main()
